@@ -118,13 +118,15 @@ config.keys = {
   -- Copy mode (tmux prefix [, which is AltGr+8 on a German layout)
   { key = 'v', mods = 'LEADER', action = act.ActivateCopyMode },
   -- Persistent shell on the hermes VM: split and attach tmux session 'main',
-  -- creating it if needed. Own tmux server (-L soeren), so the agent's tmux
-  -- use on the VM can't take it down. Inside, the tmux prefix is Ctrl+b.
+  -- creating it if needed. One tmux server per local user (-L <user>): everyone
+  -- logs in as the same VM user, so this keeps each person's session their own,
+  -- and the agent's tmux use on the VM can't take it down. Inside, the tmux
+  -- prefix is Ctrl+b.
   {
     key = 'h',
     mods = 'LEADER',
     action = act.SplitHorizontal {
-      args = { 'ssh', '-t', 'hermes', 'tmux', '-L', 'soeren', 'new', '-A', '-s', 'main' },
+      args = { 'ssh', '-t', 'hermes', 'tmux', '-L', os.getenv 'USER' or 'default-user', 'new', '-A', '-s', 'main' },
     },
   },
   -- Ctrl+a twice sends a literal Ctrl+a (beginning of line in the shell)
