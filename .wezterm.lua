@@ -25,11 +25,13 @@ config.font = wezterm.font 'JetBrains Mono' -- bundled, Nerd Font symbols built 
 config.font_size = is_linux and 12.0 or 11.0 -- Starfield runs GNOME at scale 2
 config.line_height = 1.1
 
--- No title bar, no tab bar (tabs are unused). On Linux, move the window with
--- Super+drag and resize with Super+middle-drag. 'RESIZE' still shows a title
--- bar on X11 under GNOME (wezterm/wezterm#3936), so Linux gets 'NONE'.
+-- No title bar. On Linux, move the window with Super+drag and resize with
+-- Super+middle-drag. 'RESIZE' still shows a title bar on X11 under GNOME
+-- (wezterm/wezterm#3936), so Linux gets 'NONE'.
 config.window_decorations = is_linux and 'NONE' or 'RESIZE'
-config.enable_tab_bar = false
+-- The tab bar only appears once a second tab exists (Ctrl+Shift+T), so a new
+-- tab is never invisible.
+config.hide_tab_bar_if_only_one_tab = true
 config.window_padding = { left = '1cell', right = '1cell', top = '0.5cell', bottom = '0.5cell' }
 
 -- Without tabs, the dimmed inactive panes are what shows focus.
