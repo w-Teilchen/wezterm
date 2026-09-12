@@ -64,7 +64,8 @@ key within one second. While the leader is waiting, the cursor turns orange.
 
 | Keys | What it does |
 |---|---|
-| Ctrl+a `h` | open a split with a tmux session on the `hermes` server (needs `ssh hermes` to work). Closing the pane or losing the network keeps the session alive; Ctrl+a `h` again returns to it. Each local user gets their own session. |
+| Ctrl+a `h` | in the current pane, connect to the tmux session on the `hermes` server (needs `ssh hermes` to work). Only works at a shell prompt — split first if you want it next to what you have. Closing the pane or losing the network keeps the session alive; Ctrl+a `h` again returns to it. Each local user gets their own session. |
 
 Inside that tmux session the tmux prefix is **Ctrl+b** (not Ctrl+a): Ctrl+b `<` /
-`-` split, Ctrl+b `x` closes, the mouse wheel scrolls, Ctrl+b `d` detaches.
+`-` split, Ctrl+b `x` closes, the mouse wheel scrolls, Ctrl+b `d` detaches and
+brings you back to the local shell.

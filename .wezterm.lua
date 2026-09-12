@@ -86,6 +86,26 @@ local function resize(direction)
   }
 end
 
+-- Persistent shell on the hermes VM, opened in the current pane: types the ssh
+-- command at the shell prompt, so detaching (Ctrl+b d) or a dropped connection
+-- returns to the local shell. One tmux server per local user (-L <user>):
+-- everyone logs in as the same VM user, so this keeps each person's session
+-- their own, and the agent's tmux use on the VM can't take it down.
+local hermes_cmd = 'ssh -t hermes tmux -L ' .. (os.getenv 'USER' or 'default-user') .. ' new -A -s main\r'
+local shells = { bash = true, zsh = true, fish = true, sh = true, dash = true }
+
+local open_hermes = wezterm.action_callback(function(window, pane)
+  -- Only type at a shell prompt, never into vim or a running command. Unknown
+  -- (nil) is let through: panes that can't report it, e.g. WSL on Windows.
+  local proc = pane:get_foreground_process_name()
+  local name = proc and proc:match '([^/\\]+)$'
+  if name and not shells[name] then
+    window:toast_notification('WezTerm', 'Leader+h needs a shell prompt; this pane runs ' .. name, nil, 3000)
+    return
+  end
+  pane:send_text(hermes_cmd)
+end)
+
 local arrows = {
   LeftArrow = 'Left',
   RightArrow = 'Right',
@@ -117,18 +137,9 @@ config.keys = {
   { key = 's', mods = 'LEADER', action = act.PaneSelect { mode = 'SwapWithActive' } },
   -- Copy mode (tmux prefix [, which is AltGr+8 on a German layout)
   { key = 'v', mods = 'LEADER', action = act.ActivateCopyMode },
-  -- Persistent shell on the hermes VM: split and attach tmux session 'main',
-  -- creating it if needed. One tmux server per local user (-L <user>): everyone
-  -- logs in as the same VM user, so this keeps each person's session their own,
-  -- and the agent's tmux use on the VM can't take it down. Inside, the tmux
-  -- prefix is Ctrl+b.
-  {
-    key = 'h',
-    mods = 'LEADER',
-    action = act.SplitHorizontal {
-      args = { 'ssh', '-t', 'hermes', 'tmux', '-L', os.getenv 'USER' or 'default-user', 'new', '-A', '-s', 'main' },
-    },
-  },
+  -- Attach tmux session 'main' on the hermes VM in this pane (see open_hermes).
+  -- Inside, the tmux prefix is Ctrl+b.
+  { key = 'h', mods = 'LEADER', action = open_hermes },
   -- Ctrl+a twice sends a literal Ctrl+a (beginning of line in the shell)
   {
     key = 'a',
